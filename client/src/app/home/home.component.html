@@ -3,6 +3,13 @@
     <mat-card>
       <mat-card-title id="MoRide">{{ this.text }}</mat-card-title>
       <mat-card-subtitle>Welcome to MoRide! The Morris community car-pooling application</mat-card-subtitle>
+      <br />
+      <div id="signIn" *ngIf="!appService.isSignedIn()" class="g-signin2" (click)="appComponent.signIn()"></div>
+      <div *ngIf="appService.isSignedIn()" class="username">
+      </div>
+      <div id="signOut" *ngIf="appService.isSignedIn()" (click)="appComponent.signOut()">
+        <mat-icon>exit_to_app</mat-icon>
+        Sign Out</div>
       <mat-divider></mat-divider>
       <mat-card-content>
         Helping people carpool since 2019!

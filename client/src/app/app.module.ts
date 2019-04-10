@@ -23,6 +23,7 @@ import {CustomModule} from './custom.module';
 import {UserProfileComponent} from "./users/user-profile.component";
 import {UserService} from "./users/user-service";
 import {EditUserComponent} from "./users/edit-user.component";
+import {AppService} from "./app.service";
 
 
 
@@ -46,11 +47,13 @@ import {EditUserComponent} from "./users/edit-user.component";
     AddRideComponent,
     EditRideComponent,
     EditUserComponent,
-    DeleteRideComponent
+    DeleteRideComponent,
+    AppService
   ],
   providers: [
     RideListService,
     UserService,
+    AppService,
     {provide: APP_BASE_HREF, useValue: '/'},
   ],
   entryComponents: [
