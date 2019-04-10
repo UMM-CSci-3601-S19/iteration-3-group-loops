@@ -24,6 +24,7 @@ import {UserProfileComponent} from "./users/user-profile.component";
 import {UserService} from "./users/user-service";
 import {EditUserComponent} from "./users/edit-user.component";
 import {AppService} from "./app.service";
+import {AuthGuardService} from "./auth/auth-guard.service";
 
 
 
@@ -53,6 +54,7 @@ import {AppService} from "./app.service";
     RideListService,
     UserService,
     AppService,
+    AuthGuardService,
     {provide: APP_BASE_HREF, useValue: '/'},
   ],
   entryComponents: [

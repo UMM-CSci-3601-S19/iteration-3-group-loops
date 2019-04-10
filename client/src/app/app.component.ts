@@ -11,14 +11,11 @@ declare let gapi: any;
 })
 
 export class AppComponent implements OnInit {
-  title = 'MoRide';
+  title = 'Mongo-Angular-Spark lab';
   googleAuth;
 
-
   constructor(private http: HttpClient, public appService: AppService,) {
-
   }
-
 
 
   signIn() {
@@ -40,9 +37,10 @@ export class AppComponent implements OnInit {
       localStorage.setItem('isSignedIn', 'false');
       localStorage.setItem("userID", "");
       window.location.reload();
+      console.log(" This is sign in status: " + this.appService.isSignedIn());
     })
   }
-inu
+
   sendAuthCode(code: string): void {
     const httpOptions = {
       headers: new HttpHeaders({
