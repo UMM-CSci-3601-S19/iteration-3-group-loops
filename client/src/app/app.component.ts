@@ -9,6 +9,7 @@ declare let gapi: any;
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent implements OnInit {
   title = 'MoRide';
   googleAuth;
@@ -41,7 +42,7 @@ export class AppComponent implements OnInit {
       window.location.reload();
     })
   }
-
+inu
   sendAuthCode(code: string): void {
     const httpOptions = {
       headers: new HttpHeaders({

@@ -47,8 +47,7 @@ import {AppService} from "./app.service";
     AddRideComponent,
     EditRideComponent,
     EditUserComponent,
-    DeleteRideComponent,
-    AppService
+    DeleteRideComponent
   ],
   providers: [
     RideListService,

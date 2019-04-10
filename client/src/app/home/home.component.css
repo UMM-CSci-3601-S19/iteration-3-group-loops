@@ -6,3 +6,8 @@
 .mat-card {
   text-align: center;
 }
+
+#signIn{
+  display: flex;
+  justify-content: center;
+}
