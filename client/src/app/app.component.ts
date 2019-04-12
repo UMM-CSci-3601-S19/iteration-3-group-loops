@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {AppService} from "./app.service";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {environment} from "../environments/environment";
 
 declare let gapi: any;
 
@@ -47,7 +48,31 @@ export class AppComponent implements OnInit {
         'Content-Type': 'application/json'
       }),
     };
+
+    this.http.post(environment.API_URL + "login", {code: code}, httpOptions)
+      .subscribe(onSuccess => {
+        console.log(code);
+        console.log("Code sent to server");
+        console.log(onSuccess);
+        console.log(onSuccess["_id"]);
+        console.log(onSuccess["_id"]["$oid"]);
+        console.log(onSuccess["email"]);
+        console.log(onSuccess["fullName"]);
+        console.log(onSuccess["lastName"]);
+        console.log(onSuccess["firstName"]);
+        console.log(onSuccess["pictureUrl"]);
+        localStorage.setItem("_id", onSuccess["_id"]);
+        localStorage.setItem("oid", onSuccess["_id"]["$oid"]);
+        localStorage.setItem("email", onSuccess["email"]);
+        localStorage.setItem("userFullName", onSuccess["fullName"]);
+        localStorage.setItem("userLastName", onSuccess["lastName"]);
+        localStorage.setItem("userFirstName", onSuccess["firstName"]);
+        localStorage.setItem("pictureUrl", onSuccess["pictureUrl"]);
+      }, onFail => {
+        console.log("ERROR: Code couldn't be sent to the server");
+      });
   }
+
 
   handleClientLoad(){
     gapi.load('client:auth2', this.initClient);

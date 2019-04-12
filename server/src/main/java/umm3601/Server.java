@@ -2,6 +2,7 @@ package umm3601;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -11,10 +12,18 @@ import umm3601.ride.RideRequestHandler;
 import umm3601.user.UserController;
 import umm3601.user.UserRequestHandler;
 
+import java.io.FileReader;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import com.google.api.client.googleapis.auth.oauth2.*;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
 import static spark.Spark.*;
 import static spark.debug.DebugScreen.enableDebugScreen;
-
-import java.io.InputStream;
+import org.json.*;
 
 public class Server {
 
@@ -61,8 +70,8 @@ public class Server {
     redirect.get("", "/");
 
     Route clientRoute = (req, res) -> {
-	  InputStream stream = Server.class.getResourceAsStream("/public/index.html");
-	  return IOUtils.toString(stream);
+      InputStream stream = Server.class.getResourceAsStream("/public/index.html");
+      return IOUtils.toString(stream);
     };
 
     get("/", clientRoute);
@@ -104,6 +113,57 @@ public class Server {
       res.type("text");
       res.status(404);
       return "Sorry, we couldn't find that!";
+    });
+
+    post("api/login", (req, res) -> {
+
+      JSONObject obj = new JSONObject(req.body());
+      String authCode = obj.getString("code");
+
+      try {
+        String CLIENT_SECRET_FILE = "../secret.json";
+        /*
+        Document secret_file = Document.parse(new String(Files.readAllBytes(Paths.get(CLIENT_SECRET_FILE))));
+        String local_secret = secret_file.getString("local");
+        */
+        GoogleClientSecrets clientSecrets =
+          GoogleClientSecrets.load(
+            JacksonFactory.getDefaultInstance(), new FileReader(CLIENT_SECRET_FILE));
+
+
+        GoogleTokenResponse tokenResponse =
+          new GoogleAuthorizationCodeTokenRequest(
+            new NetHttpTransport(),
+            JacksonFactory.getDefaultInstance(),
+            "https://oauth2.googleapis.com/token",
+            clientSecrets.getDetails().getClientId(),
+
+
+            clientSecrets.getDetails().getClientSecret(),
+            authCode,
+            "http://localhost:9000").execute();
+
+        // Get profile info from ID token
+        GoogleIdToken idToken = tokenResponse.parseIdToken();
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        String userId = payload.getSubject();     // Use this value as a key to identify a user.
+        String email = payload.getEmail();
+        System.out.println(userId);
+        boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+        System.out.println(userId);
+        String name = (String) payload.get("name");
+        String pictureUrl = (String) payload.get("picture");
+        String locale = (String) payload.get("locale");
+        System.out.println(userId);
+        System.out.println(email);
+        System.out.println(name);
+        System.out.println(pictureUrl);
+        return userController.login(userId, email, name, pictureUrl);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+      return "";
     });
   }
 
