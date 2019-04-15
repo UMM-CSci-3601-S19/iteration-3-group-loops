@@ -64,9 +64,11 @@ export class RideListComponent implements OnInit {
     });
   }
 
-  openEditDialog(currentId: object,currentDriver: string, currentDestination: string, currentOrigin: string, currentRoundTrip: boolean, currentDriving: boolean, currentDepartureDate: string, currentDepartureTime: string, currentMPG: number, currentNotes: string): void {
+  openEditDialog(currentId: string, currentDriver: string, currentDestination: string, currentOrigin: string, currentRoundTrip: boolean, currentDriving: boolean, currentDepartureDate: string, currentDepartureTime: string, currentMPG: number, currentNotes: string): void {
     const currentRide: Ride = {
-      _id: currentId,
+      _id: {
+        $oid: currentId
+      },
       driver: currentDriver,
       destination: currentDestination,
       origin: currentOrigin,
@@ -79,7 +81,7 @@ export class RideListComponent implements OnInit {
     };
 
     const dialogConfig = new MatDialogConfig();
-    dialogConfig.data = {ride:currentRide,};
+    dialogConfig.data = {ride: currentRide};
     dialogConfig.width = '500px';
 
     const dialogRef = this.dialog.open(EditRideComponent, dialogConfig);
@@ -103,11 +105,11 @@ export class RideListComponent implements OnInit {
   }
 
 
-  openDeleteDialog(currentId: object): void {
+  openDeleteDialog(currentId: string): void {
     console.log("openDeleteDialog");
 
     const dialogConfig = new MatDialogConfig();
-    dialogConfig.data = {id: currentId};
+    dialogConfig.data = {id: {$oid: currentId}};
     dialogConfig.width = '500px';
 
     const dialogRef = this.dialog.open(DeleteRideComponent, dialogConfig);
@@ -143,9 +145,6 @@ export class RideListComponent implements OnInit {
     }
 
     return this.filteredRides
-      //.sort(function(a,b) {return new String(a.departureTime).localeCompare(new String (b.departureTime))})
-      //.sort(function(a,b) {return +new Date(a.departureDate) - +new Date(b.departureDate)});
-      //.sort(function(a, b) => {return this.compareFunction(a, b)});
       .sort(function (a, b) {
         /*console.log("Date a: ", a.departureDate, "Date b: ", b.departureDate, "Comparison #: ", +new Date(a.departureDate) - +new Date(b.departureDate));
         console.log(a.departureTime.localeCompare(b.departureTime));*/
@@ -153,21 +152,7 @@ export class RideListComponent implements OnInit {
           return +new Date(a.departureDate) - +new Date(b.departureDate);
         } else return a.departureTime.localeCompare(b.departureTime);
       })
-      // .sort(function (a, b) {
-      //   console.log(+new Date(a.departureDate) - +new Date(b.departureDate));
-      //   console.log(new String(a.departureTime).localeCompare(new String (b.departureTime)));
-      //   if (new String(a.departureTime).localeCompare(new String (b.departureTime)) != 0) {
-      //     return (new String(a.departureTime).localeCompare(new String (b.departureTime)));
-      //   } else return +new Date(a.departureDate) - +new Date(b.departureDate);
-      // })
   }
-
-  compareFunction(a: Ride, b: Ride): number {
-    if (+new Date(a.departureDate) - +new Date(b.departureDate) != 0) {
-      return +new Date(a.departureDate) - +new Date(b.departureDate);
-    } else return (+new Date(a.departureDate) - +new Date(b.departureDate));
-  }
-
 
   refreshRides(): Observable<Ride[]> {
     const rides: Observable<Ride[]> = this.rideListService.getRides();
