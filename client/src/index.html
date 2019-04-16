@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/Article">
   <head>
    <meta charset="utf-8">
     <title>Mongo-Angular-Spark lab</title>
@@ -14,8 +14,48 @@
     </script>
     <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer>
     </script>
+    <script>
+      function start() {
+        gapi.load('auth2', function () {
+          auth2 = gapi.auth2.init({
+            client_id: '375549452265-kpv6ds6lpfc0ibasgeqcgq1r6t6t6sth.apps.googleusercontent.com',
+            // Scopes to request in addition to 'profile' and 'email'
+            scope: 'additional_scope'
+          });
+        });
+      }
+    </script>
+    <!-- end Google Login Scripts !-->
   </head>
   <body>
     <app-root>Loading...?</app-root>
+    <script>
+      function signInCallback(authResult) {
+        if (authResult['code']) {
+
+          // Hide the sign-in button now that the user is authorized, for example:
+          $('#signinButton').attr('style', 'display: none');
+
+          // Send the code to the server
+          $.ajax({
+            type: 'POST',
+            url: 'http://example.com/storeauthcode',
+            // Always include an `X-Requested-With` header in every AJAX request,
+            // to protect against CSRF attacks.
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            contentType: 'application/octet-stream; charset=utf-8',
+            success: function (result) {
+              // Handle or verify the server response.
+            },
+            processData: false,
+            data: authResult['code']
+          });
+        } else {
+          // There was an error.
+        }
+      }
+    </script>
   </body>
 </html>

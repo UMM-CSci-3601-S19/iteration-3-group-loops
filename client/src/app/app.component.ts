@@ -20,12 +20,19 @@ export class AppComponent implements OnInit {
 
 
   signIn() {
+    console.log(gapi);
     this.googleAuth = gapi.auth2.getAuthInstance();
-    console.log(" This is google Auth " + this.googleAuth);
+    console.log(this.googleAuth);
     this.googleAuth.grantOfflineAccess().then((resp) => {
+      console.log("********");
+      console.log(resp);
       localStorage.setItem('isSignedIn', 'true');
       this.sendAuthCode(resp.code);
     });
+  }
+
+  onSignIn(googleUser) {
+    var id_token = googleUser.getAuthResponse().id_token;
   }
 
   signOut() {
@@ -33,7 +40,9 @@ export class AppComponent implements OnInit {
 
     this.googleAuth = gapi.auth2.getAuthInstance();
 
-    this.googleAuth.then(() => {
+    this.googleAuth.then((data) => {
+      console.log("DATA BELOW ***");
+      console.log(data);
       this.googleAuth.signOut();
       localStorage.setItem('isSignedIn', 'false');
       localStorage.setItem("userID", "");
@@ -58,15 +67,10 @@ export class AppComponent implements OnInit {
         console.log(onSuccess["_id"]["$oid"]);
         console.log(onSuccess["email"]);
         console.log(onSuccess["fullName"]);
-        console.log(onSuccess["lastName"]);
-        console.log(onSuccess["firstName"]);
         console.log(onSuccess["pictureUrl"]);
-        localStorage.setItem("_id", onSuccess["_id"]);
         localStorage.setItem("oid", onSuccess["_id"]["$oid"]);
         localStorage.setItem("email", onSuccess["email"]);
         localStorage.setItem("userFullName", onSuccess["fullName"]);
-        localStorage.setItem("userLastName", onSuccess["lastName"]);
-        localStorage.setItem("userFirstName", onSuccess["firstName"]);
         localStorage.setItem("pictureUrl", onSuccess["pictureUrl"]);
       }, onFail => {
         console.log("ERROR: Code couldn't be sent to the server");

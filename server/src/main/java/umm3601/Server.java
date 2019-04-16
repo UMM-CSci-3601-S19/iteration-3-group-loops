@@ -16,6 +16,7 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -116,9 +117,13 @@ public class Server {
     });
 
     post("api/login", (req, res) -> {
-
       JSONObject obj = new JSONObject(req.body());
       String authCode = obj.getString("code");
+      System.out.println("********************************************************");
+      System.out.println(authCode);
+
+
+      NetHttpTransport transport = new NetHttpTransport();
 
       try {
         String CLIENT_SECRET_FILE = "../secret.json";
@@ -129,28 +134,40 @@ public class Server {
         GoogleClientSecrets clientSecrets =
           GoogleClientSecrets.load(
             JacksonFactory.getDefaultInstance(), new FileReader(CLIENT_SECRET_FILE));
+        String clientSecret = clientSecrets.getDetails().getClientSecret();
 
-
+        System.out.println(clientSecrets);
+        System.out.println(clientSecrets.getDetails());
+        System.out.println(clientSecrets.getDetails().getClientId());
         GoogleTokenResponse tokenResponse =
           new GoogleAuthorizationCodeTokenRequest(
-            new NetHttpTransport(),
+            transport,
             JacksonFactory.getDefaultInstance(),
             "https://oauth2.googleapis.com/token",
             clientSecrets.getDetails().getClientId(),
-
-
-            clientSecrets.getDetails().getClientSecret(),
+            clientSecret,
             authCode,
             "http://localhost:9000").execute();
+        System.out.println("!!!!!!!!!!!!!!!!!!1");
+        System.out.println(tokenResponse.toPrettyString());
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, JacksonFactory.getDefaultInstance())
+          // Specify the CLIENT_ID of the app that accesses the backend:
+          .setAudience(Collections.singletonList(clientSecret))
+          // Or, if multiple clients access the backend:
+          //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+          .build();
+
+        //Verifying the integrity of the token
+        GoogleIdToken idToken = verifier.verify(tokenResponse.toPrettyString());
 
         // Get profile info from ID token
-        GoogleIdToken idToken = tokenResponse.parseIdToken();
+        //GoogleIdToken idToken = tokenResponse.parseIdToken();
+
+
         GoogleIdToken.Payload payload = idToken.getPayload();
         String userId = payload.getSubject();     // Use this value as a key to identify a user.
         String email = payload.getEmail();
-        System.out.println(userId);
         boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
-        System.out.println(userId);
         String name = (String) payload.get("name");
         String pictureUrl = (String) payload.get("picture");
         String locale = (String) payload.get("locale");

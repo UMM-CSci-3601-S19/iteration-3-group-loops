@@ -66,7 +66,7 @@ public class UserController {
         Document userInfo = new Document();
         userInfo.append("_id", matchingUsers.first().get("_id"));
         userInfo.append("email", matchingUsers.first().get("email"));
-        userInfo.append("fullName", matchingUsers.first().get("fullName"));
+        userInfo.append("name", matchingUsers.first().get("fullName"));
         userInfo.append("pictureUrl", matchingUsers.first().get("pictureUrl"));
         System.err.println("Successfully added new user [_id=" + id + ", userId=" + userId + " email=" + email + " fullName=" + fullName + " pictureUrl " + pictureUrl + "]");
       }catch(MongoException e){
