@@ -3,6 +3,7 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs/Observable";
 import {environment} from "../environments/environment";
 import {CanActivate, Router} from "@angular/router";
+import {User} from "./users/user";
 
 //Declare pulls the variable from the html/js environment, so our gapi we declared in index gets pulled here.
 declare let gapi: any;
@@ -17,9 +18,16 @@ declare let gapi: any;
 export class AuthService implements CanActivate {
   private http: HttpClient;
   private status: boolean;
+  private accountFlag: boolean;
 
   constructor(private client: HttpClient, public router: Router) {
     this.http = client;
+  }
+
+  static getUserId(): string{
+    console.log("Getting user Id");
+    console.log(gapi.auth2.getAuthInstance().currentUser.get().getId());
+    return gapi.auth2.getAuthInstance().currentUser.get().getId();
   }
 
   checkUser() {
@@ -31,10 +39,10 @@ export class AuthService implements CanActivate {
       }),
       responseType: 'text' as 'json'
     };    //If the user doesn't log in (ie closes the dialog box), we think they're logged in right now.
-
+    this.accountFlag = true;
     this.http.post<string>(environment.API_URL + 'signin', {idtoken: idtoken}, httpOptions)
-      .subscribe((data) => {
-        console.log(data);
+      .subscribe(data => {
+        console.log("Data: " + data);
       });
   }
 
@@ -54,8 +62,10 @@ export class AuthService implements CanActivate {
         this.http.post<string>(environment.API_URL + 'signin', {idtoken: idtoken}, httpOptions)
           .subscribe((data) => {
             console.log(data);
+            if(data != "User does not exist"){
+              this.status = true;
+            }
           });
-        this.status = true;
       });
   }
 
@@ -79,11 +89,13 @@ export class AuthService implements CanActivate {
         this.status = true;
       });
   }
+
   signOut() {
     console.log("Signing out");
     let authInstance = gapi.auth2.getAuthInstance();
     authInstance.signOut();
     this.status = false;
+    this.accountFlag = false;
   }
 
   isSignedIn(): boolean {

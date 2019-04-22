@@ -36,7 +36,6 @@ public class Server {
 
   private static final NetHttpTransport transport = new NetHttpTransport();
 
-
   public static void main(String[] args) {
 
     MongoClient mongoClient = new MongoClient();
