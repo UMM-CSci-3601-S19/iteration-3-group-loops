@@ -22,8 +22,7 @@ describe('Add ride component', () => {
       declarations: [AddRideComponent],
       providers: [
         {provide: MatDialogRef, useValue: mockMatDialogRef},
-        {provide: MAT_DIALOG_DATA, useValue: null}
-      ]
+        {provide: MAT_DIALOG_DATA, useValue: null}],
     }).compileComponents().catch(error => {
       return expect(error).toBeNull();
     });
@@ -35,7 +34,8 @@ describe('Add ride component', () => {
     addRideComponent = fixture.componentInstance;
   });
 
-  it('destination should not allow any unaccepted characters'), async(() => {
+  it('destination should not allow any unaccepted characters');
+  async(() => { //was , between ) and async
     let fixture = TestBed.createComponent(AddRideComponent);
     let debug = fixture.debugElement;
     let input = debug.query(By.css('[name=destination]'));

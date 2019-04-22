@@ -1,5 +1,7 @@
 import {RidePage} from './ride-list.po';
 import {browser, protractor, element, by} from 'protractor';
+import {AppPage} from "./app.po";
+import {before} from "selenium-webdriver/testing";
 
 const origFn = browser.driver.controlFlow().execute;
 
@@ -19,10 +21,21 @@ browser.driver.controlFlow().execute = function () {
 
 describe('Ride List', () => {
   let page: RidePage;
+  let appPage: AppPage;
 
   beforeEach(() => {
+    //appPage.typeEmail("help");
     page = new RidePage();
     page.navigateTo();
+  });
+
+  it('should let a user login when pressing signin/signup', () => {
+    appPage = new AppPage();
+    appPage.navigateTo();
+    appPage.click("signIn");
+    browser.sleep(30000);
+    // appPage.click("check");
+    return expect(true).toBe(true);
   });
 
   it('should have a Rides title', () => {

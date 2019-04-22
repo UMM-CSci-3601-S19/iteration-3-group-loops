@@ -107,6 +107,7 @@ public class UserRequestHandler {
     }
     return null;
   }
+
   public String signup(Request req, Response res) {
     res.type("application/json");
 
