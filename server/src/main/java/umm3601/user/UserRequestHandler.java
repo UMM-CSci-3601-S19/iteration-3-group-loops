@@ -7,6 +7,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import org.bson.Document;
 import spark.Request;
 import spark.Response;
+import umm3601.Server;
 import umm3601.user.UserController;
 
 import java.util.Collections;
@@ -16,9 +17,7 @@ public class UserRequestHandler {
   private final UserController userController;
 
 
-  private static final String CLIENT_ID = "375549452265-kpv6ds6lpfc0ibasgeqcgq1r6t6t6sth.apps.googleusercontent.com";
 
-  private static final String CLIENT_SECRET_FILE = "../secret.json";
 
   private static NetHttpTransport transport = new NetHttpTransport();
 
@@ -82,55 +81,27 @@ public class UserRequestHandler {
 
   public String login(Request req, Response res) {
     res.type("application/json");
-
     Document body = Document.parse(req.body());
-    String token = body.getString("idtoken"); //key formerly 'code'
-    try {
-      GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, JacksonFactory.getDefaultInstance())
-        // Specify the CLIENT_ID of the app that accesses the backend:
-        .setAudience(Collections.singletonList(CLIENT_ID))
-        // Or, if multiple clients access the backend:
-        //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
-        .build();
-      GoogleIdToken idToken = verifier.verify(token);
-      if (idToken != null) {
-        GoogleIdToken.Payload payload = idToken.getPayload();
-        String userId = payload.getSubject();
-        String email = payload.getEmail();
-        String name = (String) payload.get("name");
-        String pictureUrl = (String) payload.get("picture");
-        return userController.signin(userId, email, name, pictureUrl);
-      }
-    } catch (Exception e) {
-      System.err.println("Invalid ID token uwu");
-      e.printStackTrace();
+    GoogleIdToken idToken = Server.getIdToken(body);
+    if (idToken != null) {
+      GoogleIdToken.Payload payload = idToken.getPayload();
+      String userId = payload.getSubject();
+      return userController.signin(userId);
     }
     return null;
   }
+
   public String signup(Request req, Response res) {
     res.type("application/json");
-
     Document body = Document.parse(req.body());
-    String token = body.getString("idtoken"); //key formerly 'code'
-    try {
-      GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, JacksonFactory.getDefaultInstance())
-        // Specify the CLIENT_ID of the app that accesses the backend:
-        .setAudience(Collections.singletonList(CLIENT_ID))
-        // Or, if multiple clients access the backend:
-        //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
-        .build();
-      GoogleIdToken idToken = verifier.verify(token);
-      if (idToken != null) {
-        GoogleIdToken.Payload payload = idToken.getPayload();
-        String userId = payload.getSubject();
-        String email = payload.getEmail();
-        String name = (String) payload.get("name");
-        String pictureUrl = (String) payload.get("picture");
-        return userController.signup(userId, email, name, pictureUrl);
-      }
-    } catch (Exception e) {
-      System.err.println("Invalid ID token uwu");
-      e.printStackTrace();
+    GoogleIdToken idToken = Server.getIdToken(body.getString("idtoken"));
+    if (idToken != null) {
+      GoogleIdToken.Payload payload = idToken.getPayload();
+      String userId = payload.getSubject();
+      String email = payload.getEmail();
+      String name = (String) payload.get("name");
+      String pictureUrl = (String) payload.get("picture");
+      return userController.signup(userId, email, name, pictureUrl);
     }
     return null;
   }

@@ -129,7 +129,7 @@ public class UserController {
     }
   }
 
-  String signin(String userId, String email, String fullName, String pictureUrl){
+  String signin(String userId){
     Document filterDoc = new Document();
 
     Document contentRegQuery = new Document();
@@ -140,14 +140,14 @@ public class UserController {
     FindIterable<Document> matchingUsers = userCollection.find(filterDoc);
 
     if(JSON.serialize(matchingUsers).equals("[ ]")) {
-      return "User already exists";
+      return "User does not exist";
     }else{
       Document userInfo = new Document();
       userInfo.append("_id", matchingUsers.first().get("_id"));
       userInfo.append("email", matchingUsers.first().get("email"));
       userInfo.append("name", matchingUsers.first().get("name"));
       userInfo.append("pictureUrl", matchingUsers.first().get("pictureUrl"));
-      System.out.println("Logged in user: " + name);
+      System.out.println("Logged in user: " + matchingUsers.first().get("name"));
       return JSON.serialize(userInfo);
     }
   }

@@ -20,13 +20,21 @@ import static spark.Spark.*;
 import static spark.debug.DebugScreen.enableDebugScreen;
 
 import java.io.InputStream;
+import java.util.Collections;
 
+import org.bson.Document;
 
 public class Server {
 
   private static final int serverPort = 4567;
 
   private static final String databaseName = "dev";
+
+  private static final String CLIENT_ID = "375549452265-kpv6ds6lpfc0ibasgeqcgq1r6t6t6sth.apps.googleusercontent.com";
+
+  private static final String CLIENT_SECRET_FILE = "../secret.json";
+
+  private static final NetHttpTransport transport = new NetHttpTransport();
 
 
   public static void main(String[] args) {
@@ -38,6 +46,7 @@ public class Server {
     RideRequestHandler rideRequestHandler = new RideRequestHandler(rideController);
     UserController userController = new UserController(database);
     UserRequestHandler userRequestHandler = new UserRequestHandler(userController);
+
 
     //Configure Spark
     port(serverPort);
@@ -117,6 +126,27 @@ public class Server {
       res.status(404);
       return "Sorry, we couldn't find that!";
     });
+  }
+
+  public static GoogleIdToken getIdToken(Document body){
+    return getIdToken(body.getString("idtoken"));
+  }
+
+  public static GoogleIdToken getIdToken(String token){
+    try {
+      GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, JacksonFactory.getDefaultInstance())
+        // Specify the CLIENT_ID of the app that accesses the backend:
+        //.setAudience(Collections.singletonList(CLIENT_ID))
+        // Or, if multiple clients access the backend:
+        //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+        .setAudience(Collections.singletonList(CLIENT_ID))
+        .build();
+      return verifier.verify(token);
+    } catch (Exception e) {
+      System.err.println("Invalid ID token");
+      e.printStackTrace();
+      return null;
+    }
   }
 
   // Enable GZIP for all responses
