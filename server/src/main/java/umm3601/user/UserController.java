@@ -91,7 +91,7 @@ public class UserController {
     }
   }
 
-  public String login(String userId, String email, String name, String pictureUrl){
+  String signup(String userId, String email, String fullName, String pictureUrl){
     Document filterDoc = new Document();
 
     Document contentRegQuery = new Document();
@@ -108,7 +108,7 @@ public class UserController {
       newUser.append("_id", id);
       newUser.append("userId", userId);
       newUser.append("email", email);
-      newUser.append("name", name);
+      newUser.append("fullName", fullName);
       newUser.append("pictureUrl", pictureUrl);
       try {
         userCollection.insertOne(newUser);
@@ -116,23 +116,39 @@ public class UserController {
         Document userInfo = new Document();
         userInfo.append("_id", matchingUsers.first().get("_id"));
         userInfo.append("email", matchingUsers.first().get("email"));
-        userInfo.append("name", matchingUsers.first().get("name"));
+        userInfo.append("name", matchingUsers.first().get("fullName"));
         userInfo.append("pictureUrl", matchingUsers.first().get("pictureUrl"));
-        System.err.println("Successfully added new user [_id=" + id + ", userId=" + userId + " email=" + email + " name=" + name + " pictureUrl " + pictureUrl + "]");
+        System.err.println("Successfully added new user [_id=" + id + ", userId=" + userId + " email=" + email + " fullName=" + fullName + " pictureUrl " + pictureUrl + "]");
+        return "New User added";
       }catch(MongoException e){
         e.printStackTrace();
-        return null;
+        return "Error trying to create user";
       }
+    }else {
+      return "User already exists";
+    }
+  }
+
+  String signin(String userId, String email, String fullName, String pictureUrl){
+    Document filterDoc = new Document();
+
+    Document contentRegQuery = new Document();
+    contentRegQuery.append("$regex", userId);
+    contentRegQuery.append("$options", "i");
+    filterDoc = filterDoc.append("userId", contentRegQuery);
+
+    FindIterable<Document> matchingUsers = userCollection.find(filterDoc);
+
+    if(JSON.serialize(matchingUsers).equals("[ ]")) {
+      return "User already exists";
     }else{
       Document userInfo = new Document();
       userInfo.append("_id", matchingUsers.first().get("_id"));
       userInfo.append("email", matchingUsers.first().get("email"));
-      userInfo.append("name", matchingUsers.first().get("name"));
+      userInfo.append("fullName", matchingUsers.first().get("fullName"));
       userInfo.append("pictureUrl", matchingUsers.first().get("pictureUrl"));
-      System.out.println("Logged in user: " + name);
+      System.out.println("Logged in user: " + fullName);
       return JSON.serialize(userInfo);
     }
-    return "";
   }
-
 }
